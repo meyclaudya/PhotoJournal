@@ -65,13 +65,13 @@ Lalu scan QR code dengan aplikasi **Expo Go** di HP fisik (Android/iOS).
 
 ## 📸 Screenshot
 
-| Tampilan | Preview |
-|----------|---------|
-| **Priming Screen** | ![alt text](priming.jpeg) |
-| **Permission Denied** | ![alt text](denied.jpeg) |
-| **Home Timeline** |![alt text](list.jpeg) |
-| **New Entry** | ![alt text](<new entry.jpeg>) |
+| Priming Screen | Permission Denied |
+|---|---|
+| ![Priming](priming.jpeg) | ![Denied](denied.jpeg) |
 
+| Home Timeline | New Entry |
+|---|---|
+| ![Home](list.jpeg) | ![New Entry](new%20entry.jpeg) |
 ---
 
 ## 🔗 Expo Snack
