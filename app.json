@@ -1,29 +1,51 @@
 {
   "expo": {
-    "name": "PhotoJournal",
-    "slug": "PhotoJournal",
+    "name": "Photo Journal",
+    "slug": "photo-journal",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#F5EFE4"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.meyclaudya.photojournal",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Photo Journal butuh akses kamera untuk memotret momen harianmu langsung dari app.",
+        "NSPhotoLibraryUsageDescription": "Photo Journal butuh akses galeri untuk memilih foto yang sudah ada sebagai catatan harian.",
+        "NSPhotoLibraryAddUsageDescription": "Photo Journal menyimpan foto yang kamu ambil ke galeri agar tidak hilang.",
+        "NSLocationWhenInUseUsageDescription": "Photo Journal butuh lokasi untuk menandai tempat kejadian dan menampilkan cuaca saat catatan dibuat."
+      }
     },
     "android": {
+      "package": "com.meyclaudya.photojournal",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#F5EFE4"
       },
-      "edgeToEdgeEnabled": true
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Photo Journal butuh akses galeri untuk memilih foto sebagai catatan harian.",
+          "cameraPermission": "Photo Journal butuh akses kamera untuk memotret momen harianmu langsung dari app."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Photo Journal butuh lokasi untuk menandai tempat kejadian dan menampilkan cuaca saat catatan dibuat."
+        }
+      ]
+    ]
   }
 }
