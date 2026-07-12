@@ -28,9 +28,13 @@ Bukan UI kartu-kotak generic bergaya Instagram. Konsep yang dipakai:
 |---|---|
 | ![Home](list.jpeg) | ![New Entry](newentry.jpeg) |
 
-| APK EAS Build FINISHED | APK Terinstall di HP |
-|---|---|
-| ![alt text](ss.png) |![alt text](apk.jpeg) |
+| APK EAS Build FINISHED |
+|---|
+| ![alt text](ss.png) |
+
+| APK Terinstall di HP |
+|---|
+| ![alt text](apk.jpeg) |
 
 --- 
 
@@ -69,7 +73,7 @@ Bukan UI kartu-kotak generic bergaya Instagram. Konsep yang dipakai:
 
 | Halaman About | Update UI (Greeting & Badge) |
 |---|---|
-| ![Halaman About](screenshots/about.jpeg) | ![Update UI](screenshots/update.jpeg) |
+| ![Halaman About](about.jpeg) | ![Update UI](update.jpeg) |
 
 ---
 
