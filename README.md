@@ -54,9 +54,6 @@ Bukan UI kartu-kotak generic bergaya Instagram. Konsep yang dipakai:
 
 ### Rincian Level Tugas
 
-<details>
-<summary>Klik untuk lihat detail lengkap Level 1–3 (P13) dan Bonus (P14)</summary>
-
 **Level 1 — Core (wajib)**
 - Akses kamera **dan** galeri dengan permission flow yang benar (`requestPermissionsAsync` → cek `status === 'granted'` → baru akses fitur)
 - Penolakan izin ditangani dengan `Alert` ramah + tombol ke Pengaturan, tanpa crash
@@ -93,8 +90,6 @@ Bukan UI kartu-kotak generic bergaya Instagram. Konsep yang dipakai:
 | Halaman About | Update UI (Greeting & Badge) |
 |---|---|
 | ![Halaman About](about.jpeg) | ![Update UI](update.jpeg) |
-
-</details>
 
 ---
 
