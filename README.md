@@ -34,7 +34,7 @@ Bukan UI kartu-kotak generic bergaya Instagram. Konsep yang dipakai:
 
 | APK Terinstall di HP |
 |---|
-| <img src="apk.jpeg" width="300"> |
+| ![alt text](apk-1.jpeg) |
 
 --- 
 
