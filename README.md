@@ -1,8 +1,13 @@
 # 📔 Photo Journal
 
-Buku harian visual berbasis React Native (Expo) — setiap momen, foto, lokasi, dan cuaca tersimpan rapi dengan tampilan ala buku harian kertas ("Paper Journal").
+**Buku harian visual berbasis React Native (Expo) — abadikan tiap momen dengan foto, lokasi, dan cuaca, tersimpan rapi ala buku harian kertas.**
 
-Dibangun untuk **Mission 13: Native Power App** dan dirilis sebagai APK untuk **Mission 14: Menyiapkan Aplikasi untuk Rilis**.
+![Platform](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)
+![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB?logo=react&logoColor=white)
+![Expo SDK](https://img.shields.io/badge/Expo%20SDK-54-000020?logo=expo&logoColor=white)
+![Version](https://img.shields.io/badge/version-1.0.1-C1652F)
+
+Dibangun untuk **Mission 13: Native Power App**, dirilis sebagai APK untuk **Mission 14: Menyiapkan Aplikasi untuk Rilis**, dan difinalisasi untuk **Mission 15: Demo Day** — Mata Kuliah Praktek Pemrograman Mobile.
 
 ---
 
@@ -36,18 +41,31 @@ Bukan UI kartu-kotak generic bergaya Instagram. Konsep yang dipakai:
 |---|
 | ![alt text](apk-1.jpeg) |
 
---- 
+---
 
 ## ✨ Fitur
 
-### Level 1 — Core (wajib)
+- 📸 **Kamera & Galeri** — ambil atau pilih foto momen harian, lengkap dengan permission flow yang aman dan penanganan penolakan izin yang ramah (tidak crash)
+- 📍 **Lokasi & Reverse Geocoding** — tandai tempat kejadian secara otomatis, koordinat diubah jadi nama kecamatan/kota
+- 🌦️ **Cuaca Real-Time** — ambil data cuaca dari Open-Meteo berdasarkan lokasi entry, ditampilkan sebagai stempel pos mungil
+- 💾 **Persistensi Lokal** — semua catatan tersimpan otomatis lewat AsyncStorage, tetap ada walau app ditutup
+- 🗺️ **Buka di Maps** — satu ketuk untuk membuka lokasi entry di Google Maps
+- 🖼️ **Timeline Multi-Entry** — seluruh catatan ditampilkan dalam alur vertikal ala buku harian, bukan grid galeri biasa
+
+### Rincian Level Tugas
+
+<details>
+<summary>Klik untuk lihat detail lengkap Level 1–3 (P13) dan Bonus (P14)</summary>
+
+**Level 1 — Core (wajib)**
 - Akses kamera **dan** galeri dengan permission flow yang benar (`requestPermissionsAsync` → cek `status === 'granted'` → baru akses fitur)
 - Penolakan izin ditangani dengan `Alert` ramah + tombol ke Pengaturan, tanpa crash
 - Cek `result.canceled` sebelum mengambil `assets[0].uri`
 - Lokasi diambil & ditampilkan sebagai koordinat + nama tempat
 - UI menampilkan hasil foto & koordinat secara rapi
 
-### Level 2 — Pengembangan (6/6 diambil)
+**Level 2 — Pengembangan (6/6 diambil)**
+
 | Fitur | Implementasi |
 |---|---|
 | 📸 Kamera + Galeri | Alert pilihan sumber foto sebelum membuka picker |
@@ -57,14 +75,15 @@ Bukan UI kartu-kotak generic bergaya Instagram. Konsep yang dipakai:
 | 🔁 Tombol Settings | Saat izin ditolak, `Alert` menyediakan tombol `Linking.openSettings()` |
 | 🖼️ Galeri Multi-Foto | Seluruh entry (dengan foto masing-masing) ditampilkan dalam `FlatList` timeline |
 
-### Level 3 — Bonus P13 (5/5 diambil)
+**Level 3 — Bonus P13 (5/5 diambil)**
 - 🌦️ **GPS + Cuaca**: koordinat dikirim ke Open-Meteo (`api.open-meteo.com`), hasil ditampilkan sebagai stempel cuaca
 - 🧭 **Priming screen**: layar penjelasan izin sebelum dialog sistem muncul (ditampilkan sekali, status disimpan di `AsyncStorage`)
 - 🏘️ **Reverse geocoding**: koordinat diubah jadi nama kecamatan/kota lewat `Location.reverseGeocodeAsync`
 - ⚙️ **app.json lengkap**: usage description + permission Android + config plugin `expo-image-picker` & `expo-location`
 - 🗑️ **Hapus foto**: tombol di halaman Detail mereset foto entry menjadi placeholder tanpa menghapus catatannya
 
-### Level 3 — Bonus P14
+**Level 3 — Bonus P14**
+
 | Bonus | Status | Keterangan |
 |---|---|---|
 | **A — App Version Display** | ✅ | Halaman "Tentang" (ikon ⓘ di Home) menampilkan versi app, version code, dan package name lewat `expo-constants` |
@@ -75,42 +94,48 @@ Bukan UI kartu-kotak generic bergaya Instagram. Konsep yang dipakai:
 |---|---|
 | ![Halaman About](about.jpeg) | ![Update UI](update.jpeg) |
 
+</details>
+
 ---
 
 ## 🛠️ Tech Stack
 
-- **React Native** + **Expo SDK 54** (template blank)
-- `expo-image-picker` — akses kamera & galeri
-- `expo-location` — GPS & reverse geocoding
-- `@react-native-async-storage/async-storage` — persistensi lokal
-- `expo-constants` — baca info versi app dari `app.json` (Bonus A)
-- [Open-Meteo API](https://open-meteo.com/) — data cuaca (gratis, tanpa API key)
-- Navigasi disatukan dalam satu `App.js` menggunakan state (`priming | home | new | detail | about`) — tanpa library navigasi tambahan
-- EAS Build — build APK release
+| Teknologi | Kegunaan |
+|---|---|
+| **React Native 0.81** | Framework utama untuk membangun UI native Android |
+| **Expo SDK 54** | Toolchain build, dev server, dan akses modul native |
+| **expo-image-picker** | Akses kamera & galeri untuk mengambil/memilih foto |
+| **expo-location** | Mengambil koordinat GPS & reverse geocoding nama tempat |
+| **@react-native-async-storage/async-storage** | Persistensi data catatan secara lokal di perangkat |
+| **expo-constants** | Membaca info versi app (`app.json`) untuk ditampilkan di UI |
+| **Open-Meteo API** | Sumber data cuaca real-time berdasarkan koordinat, gratis tanpa API key |
+| **EAS Build** | Build APK release untuk instalasi standalone tanpa Expo Go |
 
 ---
 
 ## ▶️ Cara Menjalankan (Development)
 
 ```bash
-# 1. Buat project dari template (jika mulai dari nol)
-npx create-expo-app@latest photo-journal --template blank@sdk-54
-cd photo-journal
+# 1. Clone repository ini
+git clone https://github.com/meyclaudya/PhotoJournal.git
+cd PhotoJournal
 
 # 2. Install dependency
 npm install
 
-# 3. Jalankan
+# 3. Jalankan development server
 npx expo start
 ```
 
-Scan QR code dengan aplikasi **Expo Go** di HP fisik (Android/iOS).
+Scan QR code yang muncul dengan aplikasi **Expo Go** di HP fisik (Android/iOS).
+
+> ⚠️ Fitur kamera & GPS butuh HP fisik, tidak berfungsi penuh di emulator.
 
 ---
 
 ## 📦 Cara Install APK (Release)
 
-1. Download APK dari link berikut: **https://expo.dev/accounts/maengie/projects/photo-journal/builds/ef6c2347-3c7b-4649-ad82-4f7097f61e6a**
+1. Download APK dari link berikut: **[Download APK — EAS Build](https://expo.dev/accounts/maengie/projects/photo-journal/builds/ef6c2347-3c7b-4649-ad82-4f7097f61e6a)**
 2. Buka file APK di HP Android
 3. Jika muncul peringatan "sumber tidak dikenal", izinkan instalasi dari sumber tersebut
 4. Buka app **Photo Journal** dari app drawer
@@ -119,14 +144,14 @@ Scan QR code dengan aplikasi **Expo Go** di HP fisik (Android/iOS).
 
 ## 🔁 Catatan Versi
 
-Aplikasi ini dirilis sebagai satu build versi `1.0.1` (versionCode `2`) — sudah termasuk fitur sapaan dinamis berdasarkan waktu dan badge jumlah entry di header Home (lihat Bonus C di atas).
+Aplikasi ini dirilis sebagai satu build versi `1.0.1` (versionCode `2`) — sudah termasuk fitur sapaan dinamis berdasarkan waktu dan badge jumlah entry di header Home.
 
 ---
 
 ## 🔗 Tautan
 
-- **Expo Snack:** https://snack.expo.dev/@maengie/photojournal
-- **Link download APK (EAS):** https://expo.dev/accounts/maengie/projects/photo-journal/builds/ef6c2347-3c7b-4649-ad82-4f7097f61e6a
+- **🧪 Coba langsung di Expo Snack (tanpa install apapun):** https://snack.expo.dev/@maengie/photojournal
+- **📥 Download APK (EAS Build):** https://expo.dev/accounts/maengie/projects/photo-journal/builds/ef6c2347-3c7b-4649-ad82-4f7097f61e6a
 
 ---
 
@@ -138,3 +163,15 @@ Aplikasi ini dirilis sebagai satu build versi `1.0.1` (versionCode `2`) — suda
 | Versi saat ini | `1.0.1` |
 | Version code | `2` |
 | Build profile | `preview` (APK) |
+
+---
+
+## 👤 Developer
+
+| | |
+|---|---|
+| **Nama** | Mey Claudya S. |
+| **NIM** | 243303621293 |
+| **Institusi** | Universitas Prima Indonesia |
+| **Program Studi** | Sistem Informasi |
+| **Mata Kuliah** | Praktek Pemrograman Mobile |
