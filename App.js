@@ -18,6 +18,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
 // ==========================================================
 // KONSTANTA
@@ -39,7 +40,6 @@ const COLORS = {
 const STORAGE_KEY = '@photo_journal_entries_v1';
 const PRIMING_KEY = '@photo_journal_priming_seen_v1';
 
-// Peta kode cuaca Open-Meteo -> label & emoji (dipakai utk fitur bonus cuaca)
 const WEATHER_MAP = {
   0: { label: 'Cerah', emoji: '☀️' },
   1: { label: 'Cerah Berawan', emoji: '🌤️' },
@@ -66,11 +66,10 @@ function getWeatherInfo(code) {
   return WEATHER_MAP[code] || { label: 'Tidak Diketahui', emoji: '🌡️' };
 }
 
-// Rotasi polaroid yang konsisten per entry (bukan acak tiap render)
 function getRotationDeg(id) {
   let sum = 0;
   for (let i = 0; i < id.length; i++) sum += id.charCodeAt(i);
-  return (sum % 7) - 3; // rentang -3..3 derajat
+  return (sum % 7) - 3;
 }
 
 function formatTanggal(iso) {
@@ -80,9 +79,15 @@ function formatTanggal(iso) {
   return `${hari} · ${jam}`;
 }
 
-// ==========================================================
-// STORAGE HELPERS (Persistensi - Level 2)
-// ==========================================================
+// v1.0.1: sapaan dinamis berdasarkan jam perangkat (perubahan UI untuk Bonus C)
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 10) return 'Selamat Pagi';
+  if (hour < 15) return 'Selamat Siang';
+  if (hour < 18) return 'Selamat Sore';
+  return 'Selamat Malam';
+}
+
 async function loadEntriesFromStorage() {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);
@@ -101,9 +106,6 @@ async function saveEntriesToStorage(entries) {
   }
 }
 
-// ==========================================================
-// HELPER: minta izin & tangani penolakan dengan ramah
-// ==========================================================
 async function requestPermission(requestFn, namaFitur) {
   const { status } = await requestFn();
   if (status !== 'granted') {
@@ -120,9 +122,6 @@ async function requestPermission(requestFn, namaFitur) {
   return true;
 }
 
-// ==========================================================
-// SUB-KOMPONEN: Stempel Cuaca (Level 3 bonus)
-// ==========================================================
 function WeatherStamp({ weather }) {
   if (!weather) return null;
   const info = getWeatherInfo(weather.weathercode);
@@ -134,9 +133,6 @@ function WeatherStamp({ weather }) {
   );
 }
 
-// ==========================================================
-// SUB-KOMPONEN: Foto ala Polaroid
-// ==========================================================
 function PolaroidPhoto({ uri, size = 250, rotationId = '' }) {
   const rotation = useMemo(() => getRotationDeg(rotationId || `${size}`), [rotationId, size]);
   return (
@@ -154,9 +150,6 @@ function PolaroidPhoto({ uri, size = 250, rotationId = '' }) {
   );
 }
 
-// ==========================================================
-// SCREEN: Priming (penjelasan sebelum dialog izin sistem)
-// ==========================================================
 function PrimingScreen({ onContinue }) {
   return (
     <SafeAreaView style={styles.primingContainer}>
@@ -191,10 +184,7 @@ function PrimingScreen({ onContinue }) {
   );
 }
 
-// ==========================================================
-// SCREEN: Home (timeline vertikal ala buku harian)
-// ==========================================================
-function HomeScreen({ entries, onAddNew, onSelectEntry }) {
+function HomeScreen({ entries, onAddNew, onSelectEntry, onOpenAbout }) {
   const sorted = [...entries].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   const renderItem = ({ item, index }) => (
@@ -226,8 +216,22 @@ function HomeScreen({ entries, onAddNew, onSelectEntry }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.homeHeader}>
-        <Text style={styles.homeTitle}>📔 Photo Journal</Text>
-        <Text style={styles.homeSubtitle}>{sorted.length} catatan tersimpan</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <View>
+            <Text style={styles.homeTitle}>{getGreeting()} 📔</Text>
+            <Text style={styles.homeSubtitle}>Waktunya menulis catatan hari ini</Text>
+          </View>
+          <View style={{ alignItems: 'center' }}>
+            <TouchableOpacity onPress={onOpenAbout} style={styles.aboutButton}>
+              <Text style={styles.aboutButtonText}>ⓘ</Text>
+              {sorted.length > 0 && (
+                <View style={styles.entryBadge}>
+                  <Text style={styles.entryBadgeText}>{sorted.length}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
       {sorted.length === 0 ? (
@@ -253,13 +257,10 @@ function HomeScreen({ entries, onAddNew, onSelectEntry }) {
   );
 }
 
-// ==========================================================
-// SCREEN: New Entry (kamera+galeri, kamera+lokasi, cuaca, reverse geocode)
-// ==========================================================
 function NewEntryScreen({ onSave, onCancel }) {
   const [photoUri, setPhotoUri] = useState(null);
   const [note, setNote] = useState('');
-  const [location, setLocation] = useState(null); // {latitude, longitude}
+  const [location, setLocation] = useState(null);
   const [placeName, setPlaceName] = useState(null);
   const [weather, setWeather] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
@@ -313,7 +314,6 @@ function NewEntryScreen({ onSave, onCancel }) {
       const coords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
       setLocation(coords);
 
-      // Reverse geocoding (Level 3 bonus)
       try {
         const places = await Location.reverseGeocodeAsync(coords);
         if (places && places.length > 0) {
@@ -325,7 +325,6 @@ function NewEntryScreen({ onSave, onCancel }) {
         console.warn('Reverse geocode gagal:', e);
       }
 
-      // Cuaca (Level 3 bonus)
       const w = await fetchWeather(coords.latitude, coords.longitude);
       setWeather(w);
     } catch (e) {
@@ -431,9 +430,6 @@ function NewEntryScreen({ onSave, onCancel }) {
   );
 }
 
-// ==========================================================
-// SCREEN: Detail (buka maps, hapus foto, hapus entry)
-// ==========================================================
 function DetailScreen({ entry, onBack, onDeleteEntry, onDeletePhoto }) {
   const openInMaps = () => {
     if (!entry.location) return;
@@ -506,11 +502,64 @@ function DetailScreen({ entry, onBack, onDeleteEntry, onDeletePhoto }) {
   );
 }
 
-// ==========================================================
-// APP UTAMA
-// ==========================================================
+function AboutScreen({ onBack }) {
+  const appVersion =
+    Constants.expoConfig?.version || Constants.manifest?.version || 'tidak diketahui';
+  const androidVersionCode =
+    Constants.expoConfig?.android?.versionCode ||
+    Constants.manifest?.android?.versionCode ||
+    'tidak diketahui';
+  const packageName =
+    Constants.expoConfig?.android?.package || Constants.manifest?.android?.package || '-';
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }}>
+        <View style={styles.newEntryHeaderRow}>
+          <TouchableOpacity onPress={onBack}>
+            <Text style={styles.linkText}>‹ Kembali</Text>
+          </TouchableOpacity>
+          <Text style={styles.newEntryTitle}>Tentang</Text>
+          <View style={{ width: 60 }} />
+        </View>
+
+        <View style={{ alignItems: 'center', marginVertical: 24 }}>
+          <Text style={{ fontSize: 56 }}>📔</Text>
+          <Text style={styles.primingTitle}>Photo Journal</Text>
+          <Text style={styles.primingSubtitle}>
+            Buku harian visual — setiap momen, foto, dan lokasi tersimpan rapi seperti
+            buku harian kertas.
+          </Text>
+        </View>
+
+        <View style={styles.aboutInfoCard}>
+          <View style={styles.aboutInfoRow}>
+            <Text style={styles.aboutInfoLabel}>Versi Aplikasi</Text>
+            <Text style={styles.aboutInfoValue}>{appVersion}</Text>
+          </View>
+          <View style={styles.aboutInfoDivider} />
+          <View style={styles.aboutInfoRow}>
+            <Text style={styles.aboutInfoLabel}>Kode Versi (Android)</Text>
+            <Text style={styles.aboutInfoValue}>{androidVersionCode}</Text>
+          </View>
+          <View style={styles.aboutInfoDivider} />
+          <View style={styles.aboutInfoRow}>
+            <Text style={styles.aboutInfoLabel}>Package</Text>
+            <Text style={styles.aboutInfoValue}>{packageName}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.primingNote}>
+          Dibangun dengan Expo & React Native, sebagai bagian dari mata kuliah Pemrograman
+          Mobile.
+        </Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
 export default function App() {
-  const [screen, setScreen] = useState('loading'); // loading | priming | home | new | detail
+  const [screen, setScreen] = useState('loading');
   const [entries, setEntries] = useState([]);
   const [selectedEntry, setSelectedEntry] = useState(null);
 
@@ -567,7 +616,12 @@ export default function App() {
       <StatusBar style="dark" />
       {screen === 'priming' && <PrimingScreen onContinue={handleFinishPriming} />}
       {screen === 'home' && (
-        <HomeScreen entries={entries} onAddNew={() => setScreen('new')} onSelectEntry={handleSelectEntry} />
+        <HomeScreen
+          entries={entries}
+          onAddNew={() => setScreen('new')}
+          onSelectEntry={handleSelectEntry}
+          onOpenAbout={() => setScreen('about')}
+        />
       )}
       {screen === 'new' && <NewEntryScreen onSave={handleSaveEntry} onCancel={() => setScreen('home')} />}
       {screen === 'detail' && selectedEntry && (
@@ -578,21 +632,17 @@ export default function App() {
           onDeletePhoto={handleDeletePhoto}
         />
       )}
+      {screen === 'about' && <AboutScreen onBack={() => setScreen('home')} />}
     </>
   );
 }
 
-// ==========================================================
-// STYLES — konsep "Buku Harian Kertas"
-// ==========================================================
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.paper,
     paddingTop: RNStatusBar.currentHeight || 0,
   },
-
-  // Priming
   primingContainer: { flex: 1, backgroundColor: COLORS.paper },
   primingScroll: { padding: 28, paddingTop: 60, alignItems: 'center' },
   primingEmoji: { fontSize: 56, marginBottom: 12 },
@@ -631,16 +681,38 @@ const styles = StyleSheet.create({
     marginVertical: 18,
     fontStyle: 'italic',
   },
-
-  // Home
   homeHeader: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 4 },
   homeTitle: { fontSize: 28, fontWeight: '700', color: COLORS.ink },
   homeSubtitle: { fontSize: 13, color: COLORS.inkSoft, marginTop: 2 },
+  aboutButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: COLORS.line,
+    backgroundColor: COLORS.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  aboutButtonText: { fontSize: 16, color: COLORS.terracotta, fontWeight: '700' },
+  entryBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: COLORS.sage,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: COLORS.paper,
+  },
+  entryBadgeText: { fontSize: 10, color: COLORS.white, fontWeight: '700' },
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: COLORS.ink, marginTop: 10 },
   emptyDesc: { fontSize: 13, color: COLORS.inkSoft, textAlign: 'center', marginTop: 6 },
-
-  // Timeline
   timelineRow: { flexDirection: 'row', marginBottom: 4 },
   timelineTrack: { width: 24, alignItems: 'center' },
   timelineDot: {
@@ -675,8 +747,6 @@ const styles = StyleSheet.create({
   entryPlace: { fontSize: 13, color: COLORS.sageDark, fontWeight: '600', marginTop: 4 },
   entryNote: { fontSize: 14, color: COLORS.ink, marginTop: 6, lineHeight: 19 },
   entryNoteEmpty: { fontSize: 13, color: COLORS.inkSoft, fontStyle: 'italic', marginTop: 6 },
-
-  // FAB
   fab: {
     position: 'absolute',
     right: 24,
@@ -694,8 +764,6 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   fabText: { color: COLORS.white, fontSize: 30, marginTop: -2 },
-
-  // Polaroid
   polaroidFrame: {
     backgroundColor: COLORS.white,
     padding: 10,
@@ -724,8 +792,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     transform: [{ rotate: '-2deg' }],
   },
-
-  // Weather stamp
   stamp: {
     borderWidth: 1.5,
     borderColor: COLORS.terracotta,
@@ -738,8 +804,6 @@ const styles = StyleSheet.create({
   },
   stampEmoji: { fontSize: 12, marginRight: 3 },
   stampText: { fontSize: 11, color: COLORS.terracottaDark, fontWeight: '700' },
-
-  // New entry / detail shared
   newEntryHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -784,8 +848,23 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   locationCoords: { fontSize: 11, color: COLORS.inkSoft, marginTop: 2 },
-
-  // Buttons
+  aboutInfoCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.paperDark,
+    padding: 4,
+  },
+  aboutInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+  },
+  aboutInfoLabel: { fontSize: 13, color: COLORS.inkSoft },
+  aboutInfoValue: { fontSize: 13, color: COLORS.ink, fontWeight: '700' },
+  aboutInfoDivider: { height: 1, backgroundColor: COLORS.paperDark, marginHorizontal: 14 },
   primaryButton: {
     backgroundColor: COLORS.terracotta,
     borderRadius: 12,

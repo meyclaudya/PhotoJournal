@@ -2,50 +2,57 @@
   "expo": {
     "name": "Photo Journal",
     "slug": "photo-journal",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
       "backgroundColor": "#F5EFE4"
     },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.meyclaudya.photojournal",
-      "infoPlist": {
-        "NSCameraUsageDescription": "Photo Journal butuh akses kamera untuk memotret momen harianmu langsung dari app.",
-        "NSPhotoLibraryUsageDescription": "Photo Journal butuh akses galeri untuk memilih foto yang sudah ada sebagai catatan harian.",
-        "NSPhotoLibraryAddUsageDescription": "Photo Journal menyimpan foto yang kamu ambil ke galeri agar tidak hilang.",
-        "NSLocationWhenInUseUsageDescription": "Photo Journal butuh lokasi untuk menandai tempat kejadian dan menampilkan cuaca saat catatan dibuat."
-      }
-    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
-      "package": "com.meyclaudya.photojournal",
+      "package": "com.mey.photojournal",
+      "versionCode": 2,
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F5EFE4"
       },
+      "edgeToEdgeEnabled": true,
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECORD_AUDIO"
       ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [
         "expo-image-picker",
         {
-          "photosPermission": "Photo Journal butuh akses galeri untuk memilih foto sebagai catatan harian.",
-          "cameraPermission": "Photo Journal butuh akses kamera untuk memotret momen harianmu langsung dari app."
+          "photosPermission": "Photo Journal butuh akses galeri untuk memilih foto momen harianmu.",
+          "cameraPermission": "Photo Journal butuh akses kamera untuk mengambil foto momen harianmu."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Photo Journal butuh lokasi untuk menandai tempat kejadian dan menampilkan cuaca saat catatan dibuat."
+          "locationAlwaysAndWhenInUsePermission": "Photo Journal butuh akses lokasi untuk menandai tempat dan menampilkan cuaca saat itu."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "26847468-b780-446d-85fa-8965a6c38d07"
+      }
+    },
+    "owner": "maengie"
   }
 }
